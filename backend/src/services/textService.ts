@@ -7,8 +7,8 @@ export class TextService {
     this.textModel = TextModel;
   }
 
-  public async createText(content: string): Promise<void> {
-    await this.textModel.create({ content });
+  public async createText(content: string): Promise<TextModel> {
+    return await this.textModel.create({ content });
   }
 
   public async getTextById(id: number): Promise<string | null> {

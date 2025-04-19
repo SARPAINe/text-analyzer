@@ -5,6 +5,7 @@ const router = Router();
 const textController = new TextController();
 
 // router.post("/analyze", textController.analyzeText);
+router.post("/", textController.createText);
 router.get("/word-count/:id", textController.getWordCount);
 router.get("/character-count/:id", textController.getCharacterCount);
 router.get("/sentence-count/:id", textController.getSentenceCount);

@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { TextService } from "../services/textService";
+import Text from "../models/textModel";
+import { ApiError } from "../utils/apiError";
 
 class TextController {
   private textService: TextService;
@@ -7,6 +9,18 @@ class TextController {
   constructor() {
     this.textService = new TextService();
   }
+
+  public createText = async (req: Request, res: Response): Promise<void> => {
+    const { content } = req.body;
+    if (!content) {
+      throw new ApiError("Content is required", 400);
+    } else {
+      const text = await this.textService.createText(content);
+      res
+        .status(201)
+        .json({ message: "Text created successfully", text: text });
+    }
+  };
 
   public getWordCount = (req: Request, res: Response): void => {
     const text = req.body.text;
