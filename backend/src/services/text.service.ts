@@ -1,19 +1,28 @@
+import { ApiError } from "../utils";
 import { Text } from "../models";
 
 export const createText = async (content: string) => {
   return await Text.create({ content });
 };
 
-export const getTextById = async (id: number): Promise<string | null> => {
-  const textEntry = await Text.findByPk(id);
-  return textEntry ? textEntry.content : null;
+export const getAllTexts = async () => {
+  return await Text.findAll();
+};
+
+export const getTextById = async (id: number): Promise<Text | null> => {
+  const text = await Text.findByPk(id);
+  return text;
 };
 
 export const updateText = async (
   id: number,
   newContent: string
-): Promise<void> => {
-  await Text.update({ content: newContent }, { where: { id } });
+): Promise<Text> => {
+  let text = await Text.findByPk(id);
+  if (!text) throw new ApiError("Text not found", 404);
+  text?.set({ content: newContent });
+  await text.save();
+  return text;
 };
 
 export const deleteText = async (id: number): Promise<void> => {
