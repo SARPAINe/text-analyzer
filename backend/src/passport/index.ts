@@ -1,13 +1,6 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy, Profile } from "passport-google-oauth20";
 
-import dotenv from "dotenv";
-dotenv.config({ path: ".env" });
-const env = process.env.NODE_ENV;
-if (env !== "production") {
-  dotenv.config({ path: `.env.${env}` });
-}
-console.log("Registering GoogleStrategy...");
 passport.use(
   new GoogleStrategy(
     {

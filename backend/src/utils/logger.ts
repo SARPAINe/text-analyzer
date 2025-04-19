@@ -3,7 +3,13 @@ import { createLogger, format, transports } from "winston";
 const logger = createLogger({
   level: "info",
   format: format.combine(
-    format.timestamp(),
+    format.timestamp({
+      format: () =>
+        new Date().toLocaleString(undefined, {
+          timeZoneName: "short",
+          hour12: false,
+        }),
+    }),
     format.printf(({ timestamp, level, message }) => {
       return `${timestamp} [${level}]: ${message}`;
     })

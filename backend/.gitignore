@@ -42,3 +42,4 @@ coverage/
 # Miscellaneous
 *.bak
 *.orig
+test_output.txt

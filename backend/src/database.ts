@@ -2,7 +2,6 @@
 import { Sequelize } from "sequelize";
 
 // Initialize a Sequelize instance with PostgreSQL database connection
-console.log(process.env);
 export const sequelize = new Sequelize({
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT) || 5432,
@@ -10,6 +9,7 @@ export const sequelize = new Sequelize({
   username: process.env.DB_USER,
   database: process.env.DB_NAME,
   dialect: "postgres",
+  logging: false,
 });
 
 export const connectToDatabase = async () => {
