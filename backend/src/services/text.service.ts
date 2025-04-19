@@ -28,7 +28,7 @@ export const deleteText = async (id: number) => {
 export const analyzeText = (content: string) => {
   const cleaned = content.trim();
   const words = cleaned.length ? cleaned.split(/\s+/) : [];
-  const sentences = cleaned.split(/[.!?]+/).filter(Boolean);
+  const sentences = cleaned.split(/[.]+/).filter(Boolean);
   const paragraphs = cleaned.split(/\n+/).filter(Boolean);
   const longestWord = words.reduce(
     (longest, word) => (word.length > longest.length ? word : longest),

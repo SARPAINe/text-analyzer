@@ -20,7 +20,4 @@ router.get(
   authController.googleAuthRedirect
 );
 
-// Optional: For a templated login page (if used)
-router.get("/login", authController.renderLogin);
-
 export default router;

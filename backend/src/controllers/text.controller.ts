@@ -40,7 +40,6 @@ export const getTextById = async (
   //check if the creator is same
   if (text.creatorId === userId) {
     const content = text.content;
-    if (!content) throw new ApiError("Content is required", 400);
     // Perform analysis
     const result = textService.analyzeText(content);
     res.json(
@@ -78,27 +77,56 @@ export const deleteText = async (
   res.json(new ApiResponse("Text deleted successfully"));
 };
 
-export const getWordCount = (req: Request, res: Response): void => {
-  const { wordCount } = textService.analyzeText(req.body.content);
+export const getWordCount = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const text = await textService.getTextById(Number(req.params.id));
+  if (!text) throw new ApiError("Text not found", 404);
+  const { wordCount } = textService.analyzeText(text?.content);
   res.json(new ApiResponse("Word count retrieved", { wordCount }));
 };
 
-export const getCharacterCount = (req: Request, res: Response): void => {
-  const { characterCount } = textService.analyzeText(req.body.content);
+export const getCharacterCount = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const text = await textService.getTextById(Number(req.params.id));
+  if (!text) throw new ApiError("Text not found", 404);
+
+  const { characterCount } = textService.analyzeText(text?.content);
   res.json(new ApiResponse("Character count retrieved", { characterCount }));
 };
 
-export const getSentenceCount = (req: Request, res: Response): void => {
-  const { sentenceCount } = textService.analyzeText(req.body.content);
+export const getSentenceCount = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const text = await textService.getTextById(Number(req.params.id));
+  if (!text) throw new ApiError("Text not found", 404);
+
+  const { sentenceCount } = textService.analyzeText(text?.content);
   res.json(new ApiResponse("Sentence count retrieved", { sentenceCount }));
 };
 
-export const getParagraphCount = (req: Request, res: Response): void => {
-  const { paragraphCount } = textService.analyzeText(req.body.content);
+export const getParagraphCount = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const text = await textService.getTextById(Number(req.params.id));
+  if (!text) throw new ApiError("Text not found", 404);
+
+  const { paragraphCount } = textService.analyzeText(text?.content);
   res.json(new ApiResponse("Paragraph count retrieved", { paragraphCount }));
 };
 
-export const getLongestWord = (req: Request, res: Response): void => {
-  const { longestWord } = textService.analyzeText(req.body.content);
+export const getLongestWord = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const text = await textService.getTextById(Number(req.params.id));
+  if (!text) throw new ApiError("Text not found", 404);
+
+  const { longestWord } = textService.analyzeText(text?.content);
   res.json(new ApiResponse("Longest word retrieved", { longestWord }));
 };

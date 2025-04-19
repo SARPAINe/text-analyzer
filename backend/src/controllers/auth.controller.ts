@@ -35,7 +35,3 @@ export const googleAuthRedirect = (req: any, res: Response) => {
   // res.redirect(`${process.env.CLIENT_URL}/?token=${token}`);
   res.redirect("/");
 };
-
-export const renderLogin = (_req: Request, res: Response) => {
-  res.render("login");
-};
