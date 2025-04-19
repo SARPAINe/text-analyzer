@@ -1,8 +1,7 @@
+import { textController } from "../controllers";
 import { Router } from "express";
-import TextController from "../controllers/textController";
 
 const router = Router();
-const textController = new TextController();
 
 // router.post("/analyze", textController.analyzeText);
 router.post("/", textController.createText);

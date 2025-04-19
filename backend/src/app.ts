@@ -5,12 +5,9 @@ import cookieParser from "cookie-parser";
 import passport from "passport";
 
 import { connectToDatabase } from "./database";
-import { logInfo } from "./utils/logger";
-import { isAuth } from "./middlewares/authMiddleware";
-import { errorHandler } from "./middlewares/errorHandler";
-
-import textRoutes from "./routes/textRoutes";
-import authRoutes from "./routes/authRoutes";
+import { logInfo } from "./utils";
+import { isAuth, errorHandler } from "./middlewares";
+import { authRoutes, textRoutes } from "./routes";
 
 const app = express();
 const PORT = process.env.PORT || 3000;

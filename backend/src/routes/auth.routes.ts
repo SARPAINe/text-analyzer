@@ -1,19 +1,13 @@
 import { Router } from "express";
 import passport from "../passport";
-import { isAuth } from "../middlewares/authMiddleware";
-import {
-  register,
-  login,
-  logout,
-  googleAuthRedirect,
-  renderLogin,
-} from "../controllers/authController";
+import { isAuth } from "../middlewares";
+import { authController } from "../controllers";
 
 const router = Router();
 
-router.post("/register", register);
-router.post("/login", login);
-router.post("/logout", isAuth, logout);
+router.post("/register", authController.register);
+router.post("/login", authController.login);
+router.post("/logout", isAuth, authController.logout);
 
 // Google OAuth
 router.get(
@@ -23,10 +17,10 @@ router.get(
 router.get(
   "/google-redirect",
   passport.authenticate("google", { session: false, failureRedirect: "/" }),
-  googleAuthRedirect
+  authController.googleAuthRedirect
 );
 
 // Optional: For a templated login page (if used)
-router.get("/login", renderLogin);
+router.get("/login", authController.renderLogin);
 
 export default router;
