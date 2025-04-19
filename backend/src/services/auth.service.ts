@@ -8,6 +8,11 @@ export const registerUser = async (email: string, password: string) => {
     throw new ApiError("Email and password are required", 400);
   }
 
+  const existingUser = await User.findOne({ where: { email } });
+  if (existingUser) {
+    throw new ApiError("Email already in use", 400);
+  }
+
   const hashedPassword = await bcrypt.hash(password, 10);
   return User.create({ email, password: hashedPassword });
 };

@@ -7,8 +7,12 @@ import passport from "passport";
 
 import { isAuth, errorHandler } from "./middlewares";
 import { authRoutes, textRoutes } from "./routes";
+import { defineAssociations } from "./models";
 
 const app = express();
+
+// Define associations
+defineAssociations();
 
 /**
  * --------------------------

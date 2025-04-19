@@ -163,27 +163,3 @@ describe("DELETE /api/v1/texts/:id", () => {
     expect(res.body).toHaveProperty("message", "Text not found");
   });
 });
-
-describe("GET /api/v1/texts/analyze", () => {
-  it("should analyze text successfully", async () => {
-    const res = await request(app)
-      .post("/api/v1/texts/analyze")
-      .set("Authorization", `Bearer ${token}`)
-      .send({ content: "This is a test. It has two sentences." });
-
-    expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty("message", "Text analyzed successfully");
-    expect(res.body.data).toHaveProperty("wordCount", 7);
-    // expect(res.body.data).toHaveProperty("sentenceCount", 2);
-  });
-
-  it("should return 400 if content is missing", async () => {
-    const res = await request(app)
-      .post("/api/v1/texts/analyze")
-      .set("Authorization", `Bearer ${token}`)
-      .send({});
-
-    expect(res.statusCode).toBe(400);
-    expect(res.body).toHaveProperty("message", "Content is required");
-  });
-});

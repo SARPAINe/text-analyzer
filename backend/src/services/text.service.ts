@@ -1,8 +1,8 @@
-import { ApiError } from "../utils";
 import { Text } from "../models";
+import { ApiError } from "../utils";
 
-export const createText = async (content: string) => {
-  return await Text.create({ content });
+export const createText = async (content: string, creatorId: number) => {
+  return await Text.create({ content, creatorId });
 };
 
 export const getAllTexts = async () => {
@@ -10,29 +10,26 @@ export const getAllTexts = async () => {
 };
 
 export const getTextById = async (id: number): Promise<Text | null> => {
+  return await Text.findByPk(id);
+};
+
+export const updateText = async (id: number, newContent: string) => {
   const text = await Text.findByPk(id);
-  return text;
-};
-
-export const updateText = async (
-  id: number,
-  newContent: string
-): Promise<Text> => {
-  let text = await Text.findByPk(id);
   if (!text) throw new ApiError("Text not found", 404);
-  text?.set({ content: newContent });
-  await text.save();
-  return text;
+
+  text.set({ content: newContent });
+  return await text.save();
 };
 
-export const deleteText = async (id: number): Promise<void> => {
+export const deleteText = async (id: number) => {
   await Text.destroy({ where: { id } });
 };
 
 export const analyzeText = (content: string) => {
-  const words = content.toLowerCase().trim().split(/\s+/);
-  const sentences = content.split(/[.!?]+/).filter(Boolean);
-  const paragraphs = content.split(/\n+/).filter(Boolean);
+  const cleaned = content.trim();
+  const words = cleaned.length ? cleaned.split(/\s+/) : [];
+  const sentences = cleaned.split(/[.!?]+/).filter(Boolean);
+  const paragraphs = cleaned.split(/\n+/).filter(Boolean);
   const longestWord = words.reduce(
     (longest, word) => (word.length > longest.length ? word : longest),
     ""
@@ -40,7 +37,7 @@ export const analyzeText = (content: string) => {
 
   return {
     wordCount: words.length,
-    characterCount: content.replace(/\s+/g, "").length,
+    characterCount: cleaned.replace(/\s+/g, "").length,
     sentenceCount: sentences.length,
     paragraphCount: paragraphs.length,
     longestWord,

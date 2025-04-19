@@ -1,5 +1,6 @@
 import { Model, DataTypes, Optional } from "sequelize";
 import sequelize from "../database";
+import Text from "./text.model"; // Import the Text model
 
 // Define which attributes are required for creation
 interface UserCreationAttributes extends Optional<UserAttributes, "id"> {}
