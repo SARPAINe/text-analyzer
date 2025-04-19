@@ -1,22 +1,16 @@
+// src/database.ts
 import { Sequelize } from "sequelize";
-import dotenv from "dotenv";
-dotenv.config();
 
 // Initialize a Sequelize instance with PostgreSQL database connection
-console.log(process.env.DB_NAME);
-const sequelize = new Sequelize(
-  //   process.env.DB_NAME as string,
-  //   process.env.DB_USER as string,
-  //   process.env.DB_PASSWORD as string,
-  {
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT) || 5432,
-    password: process.env.DB_PASSWORD,
-    username: process.env.DB_USER,
-    database: process.env.DB_NAME,
-    dialect: "postgres",
-  }
-);
+console.log(process.env);
+export const sequelize = new Sequelize({
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT) || 5432,
+  password: process.env.DB_PASSWORD,
+  username: process.env.DB_USER,
+  database: process.env.DB_NAME,
+  dialect: "postgres",
+});
 
 export const connectToDatabase = async () => {
   try {

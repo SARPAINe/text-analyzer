@@ -59,26 +59,26 @@ export const deleteText = async (
 };
 
 export const getWordCount = (req: Request, res: Response): void => {
-  const { wordCount } = textService.analyzeText(req.body.text);
+  const { wordCount } = textService.analyzeText(req.body.content);
   res.json(new ApiResponse("Word count retrieved", { wordCount }));
 };
 
 export const getCharacterCount = (req: Request, res: Response): void => {
-  const { characterCount } = textService.analyzeText(req.body.text);
+  const { characterCount } = textService.analyzeText(req.body.content);
   res.json(new ApiResponse("Character count retrieved", { characterCount }));
 };
 
 export const getSentenceCount = (req: Request, res: Response): void => {
-  const { sentenceCount } = textService.analyzeText(req.body.text);
+  const { sentenceCount } = textService.analyzeText(req.body.content);
   res.json(new ApiResponse("Sentence count retrieved", { sentenceCount }));
 };
 
 export const getParagraphCount = (req: Request, res: Response): void => {
-  const { paragraphCount } = textService.analyzeText(req.body.text);
+  const { paragraphCount } = textService.analyzeText(req.body.content);
   res.json(new ApiResponse("Paragraph count retrieved", { paragraphCount }));
 };
 
 export const getLongestWord = (req: Request, res: Response): void => {
-  const { longestWord } = textService.analyzeText(req.body.text);
+  const { longestWord } = textService.analyzeText(req.body.content);
   res.json(new ApiResponse("Longest word retrieved", { longestWord }));
 };

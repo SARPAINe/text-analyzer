@@ -1,16 +1,14 @@
+// src/app.ts
 import "express-async-errors";
 import express from "express";
 import { json, urlencoded } from "body-parser";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 
-import { connectToDatabase } from "./database";
-import { logInfo } from "./utils";
 import { isAuth, errorHandler } from "./middlewares";
 import { authRoutes, textRoutes } from "./routes";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 /**
  * --------------------------
@@ -26,13 +24,6 @@ app.use(passport.initialize());
 
 /**
  * --------------------------
- * Database Connection
- * --------------------------
- */
-connectToDatabase();
-
-/**
- * --------------------------
  * Routes
  * --------------------------
  */
@@ -41,7 +32,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/text", isAuth, textRoutes); // Protected route
+app.use("/api/v1/texts", isAuth, textRoutes);
 
 /**
  * --------------------------
@@ -50,11 +41,4 @@ app.use("/api/v1/text", isAuth, textRoutes); // Protected route
  */
 app.use(errorHandler);
 
-/**
- * --------------------------
- * Start Server
- * --------------------------
- */
-app.listen(PORT, () => {
-  logInfo(`Server is running on http://localhost:${PORT}`);
-});
+export default app;
