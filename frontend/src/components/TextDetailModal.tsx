@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, Edit, Trash, AlertCircle } from "lucide-react";
 import { Text, getTextStats, TextStats } from "../services/textService";
+import { useAuth } from "../contexts/AuthContext";
 
 interface TextDetailModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ function TextDetailModal({
   const [stats, setStats] = useState<TextStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -140,23 +142,24 @@ function TextDetailModal({
                 </div>
               )}
             </div>
-
-            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-              <button
-                onClick={onDelete}
-                className="px-4 py-2 text-sm font-medium text-red-700 bg-red-50 rounded-md hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 flex items-center"
-              >
-                <Trash className="w-4 h-4 mr-2" />
-                Delete
-              </button>
-              <button
-                onClick={onEdit}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center"
-              >
-                <Edit className="w-4 h-4 mr-2" />
-                Edit
-              </button>
-            </div>
+            {user?.id === text.creatorId && (
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                <button
+                  onClick={onDelete}
+                  className="px-4 py-2 text-sm font-medium text-red-700 bg-red-50 rounded-md hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 flex items-center"
+                >
+                  <Trash className="w-4 h-4 mr-2" />
+                  Delete
+                </button>
+                <button
+                  onClick={onEdit}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center"
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

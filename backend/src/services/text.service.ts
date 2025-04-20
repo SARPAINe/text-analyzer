@@ -46,19 +46,41 @@ export const deleteText = async (id: number, creatorId: number) => {
 
 export const analyzeText = (content: string) => {
   const cleaned = content.trim();
-  const words = cleaned.length ? cleaned.split(/\s+/) : [];
-  const sentences = cleaned.split(/[.]+/).filter(Boolean);
-  const paragraphs = cleaned.split(/\n+/).filter(Boolean);
-  const longestWord = words.reduce(
-    (longest, word) => (word.length > longest.length ? word : longest),
-    ""
-  );
+
+  const getWordCount = () => {
+    const cleanedForWords = cleaned.replace(/[.,!?;:()]/g, "");
+    const words = cleanedForWords.length ? cleanedForWords.split(/\s+/) : [];
+    return words.length;
+  };
+
+  const getCharacterCount = () => {
+    return cleaned.replace(/\s+/g, "").length;
+  };
+
+  const getSentenceCount = () => {
+    const sentences = cleaned.split(/[.]+/).filter(Boolean);
+    return sentences.length;
+  };
+
+  const getParagraphCount = () => {
+    const paragraphs = cleaned.split(/\n+/).filter(Boolean);
+    return paragraphs.length;
+  };
+
+  const getLongestWord = () => {
+    const cleanedForWords = cleaned.replace(/[.,!?;:()]/g, "");
+    const words = cleanedForWords.length ? cleanedForWords.split(/\s+/) : [];
+    return words.reduce(
+      (longest, word) => (word.length > longest.length ? word : longest),
+      ""
+    );
+  };
 
   return {
-    wordCount: words.length,
-    characterCount: cleaned.replace(/\s+/g, "").length,
-    sentenceCount: sentences.length,
-    paragraphCount: paragraphs.length,
-    longestWord,
+    getWordCount,
+    getCharacterCount,
+    getSentenceCount,
+    getParagraphCount,
+    getLongestWord,
   };
 };

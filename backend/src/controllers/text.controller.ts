@@ -116,7 +116,7 @@ export const getWordCount = async (
   const text = await textService.getTextById(textId);
   if (!text) throw new ApiError("Text not found", 404);
 
-  const { wordCount } = textService.analyzeText(text.content);
+  const wordCount = textService.analyzeText(text.content).getWordCount();
   const data = { wordCount };
 
   cache.set(cacheKey, data);
@@ -140,7 +140,9 @@ export const getCharacterCount = async (
   const text = await textService.getTextById(textId);
   if (!text) throw new ApiError("Text not found", 404);
 
-  const { characterCount } = textService.analyzeText(text.content);
+  const characterCount = textService
+    .analyzeText(text.content)
+    .getCharacterCount();
   const data = { characterCount };
 
   cache.set(cacheKey, data);
@@ -164,7 +166,9 @@ export const getSentenceCount = async (
   const text = await textService.getTextById(textId);
   if (!text) throw new ApiError("Text not found", 404);
 
-  const { sentenceCount } = textService.analyzeText(text.content);
+  const sentenceCount = textService
+    .analyzeText(text.content)
+    .getSentenceCount();
   const data = { sentenceCount };
 
   cache.set(cacheKey, data);
@@ -188,7 +192,9 @@ export const getParagraphCount = async (
   const text = await textService.getTextById(textId);
   if (!text) throw new ApiError("Text not found", 404);
 
-  const { paragraphCount } = textService.analyzeText(text.content);
+  const paragraphCount = textService
+    .analyzeText(text.content)
+    .getParagraphCount();
   const data = { paragraphCount };
 
   cache.set(cacheKey, data);
@@ -210,7 +216,7 @@ export const getLongestWord = async (
   const text = await textService.getTextById(textId);
   if (!text) throw new ApiError("Text not found", 404);
 
-  const { longestWord } = textService.analyzeText(text.content);
+  const longestWord = textService.analyzeText(text.content).getLongestWord();
   const data = { longestWord };
 
   cache.set(cacheKey, data);
