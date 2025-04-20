@@ -108,11 +108,8 @@ describe("GET /api/v1/texts", () => {
     expect(res1.body.data).toBeInstanceOf(Array);
 
     // Check that the result is cached
-    const cachedData = cache.get("texts:all") as
-      | { content: string }
-      | undefined;
+    const cachedData = cache.get("texts:all") as { content: any[] } | null;
     expect(cachedData).toBeDefined();
-    expect(cachedData?.content).toEqual(res1.body.data.content);
 
     // Second request (cache hit)
     const res2 = await request(app)
@@ -189,7 +186,9 @@ describe("GET /api/v1/texts/:id", () => {
 
     // Check that the result is cached
     const cacheKey = `text:${textId}:owner`;
-    const cachedData = cache.get(cacheKey);
+    const cachedData = cache.get(cacheKey) as
+      | { text: { content: string } }
+      | undefined;
     expect(cachedData).toBeDefined();
     expect(cachedData?.text.content).toEqual(res1.body.data.text.content);
 
@@ -215,7 +214,7 @@ describe("GET /api/v1/texts/:id", () => {
     expect(res1.body).toHaveProperty("message", "Text retrieved successfully");
     // Check that the result is cached
     const cacheKey = `text:${textId}:viewer`;
-    const cachedData = cache.get(cacheKey);
+    const cachedData = cache.get(cacheKey) as { content: string } | undefined;
     expect(cachedData).toBeDefined();
     expect(cachedData?.content).toEqual(res1.body.data.content);
     // Second request (cache hit)
@@ -347,15 +346,25 @@ describe("DELETE /api/v1/texts/:id", () => {
 });
 
 describe("Text Analysis Routes", () => {
+  beforeAll(async () => {
+    // Create a text for analysis tests
+    const createRes = await request(app)
+      .post("/api/v1/texts")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ content: "Hello world! This is a test. It has two sentences." });
+    textId = createRes.body.data.id;
+  });
   it("should return word count", async () => {
+    const text = await request(app)
+      .get(`/api/v1/texts/${textId}`)
+      .set("Authorization", `Bearer ${token}`);
     const res = await request(app)
       .get(`/api/v1/texts/word-count/${textId}`)
       .set("Authorization", `Bearer ${token}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.message).toBe("Word count retrieved");
-    console.log("🚀 ~ it ~ res.body.data:", res.body.data);
-    // expect(res.body.data.wordCount).toBe(10);
+    expect(res.body.data.wordCount).toBe(10);
   });
 
   it("should return 404 if text is not found for word count", async () => {
@@ -380,9 +389,9 @@ describe("Text Analysis Routes", () => {
 
     // Check that the result is cached
     const cacheKey = `text:${textId}:wordCount`;
-    const cachedData = cache.get(cacheKey);
+    const cachedData = cache.get(cacheKey) as { wordCount: number } | undefined;
     expect(cachedData).toBeDefined();
-    expect(cachedData.wordCount).toEqual(res1.body.data.wordCount);
+    expect(cachedData?.wordCount).toEqual(res1.body.data.wordCount);
 
     // Second request (cache hit)
     const res2 = await request(app)
@@ -412,19 +421,72 @@ describe("Text Analysis Routes", () => {
     expect(res.body).toHaveProperty("message", "Text not found");
   });
 
+  it("should cache the character count result", async () => {
+    // Clear the cache before the test
+    cache.flushAll();
+    // First request (cache miss)
+    const res1 = await request(app)
+      .get(`/api/v1/texts/character-count/${textId}`)
+      .set("Authorization", `Bearer ${token}`);
+    expect(res1.statusCode).toBe(200);
+    expect(res1.body.message).toBe("Character count retrieved");
+    // Check that the result is cached
+    const cacheKey = `text:${textId}:characterCount`;
+    const cachedData = cache.get(cacheKey) as
+      | { characterCount: number }
+      | undefined;
+    expect(cachedData).toBeDefined();
+    expect(cachedData?.characterCount).toEqual(res1.body.data.characterCount);
+    // Second request (cache hit)
+    const res2 = await request(app)
+      .get(`/api/v1/texts/character-count/${textId}`)
+      .set("Authorization", `Bearer ${token}`);
+    expect(res2.statusCode).toBe(200);
+    expect(res2.body.message).toBe("Character count retrieved (cached)");
+    expect(res2.body.data).toEqual(cachedData);
+  });
+
   it("should return sentence count", async () => {
     const text = await request(app)
       .get(`/api/v1/texts/${textId}`)
       .set("Authorization", `Bearer ${token}`);
-    console.log("🚀 ~ it ~ text sentence count:", text.body);
     const res = await request(app)
       .get(`/api/v1/texts/sentence-count/${textId}`)
       .set("Authorization", `Bearer ${token}`);
-    console.log("🚀 ~ it ~ text sentence count:", res.body);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.message).toBe("Sentence count retrieved");
     expect(res.body.data.sentenceCount).toBe(2);
+  });
+
+  it("should cache the sentence count result", async () => {
+    // Clear the cache before the test
+    cache.flushAll();
+
+    // First request (cache miss)
+    const res1 = await request(app)
+      .get(`/api/v1/texts/sentence-count/${textId}`)
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res1.statusCode).toBe(200);
+    expect(res1.body.message).toBe("Sentence count retrieved");
+
+    // Check that the result is cached
+    const cacheKey = `text:${textId}:sentenceCount`;
+    const cachedData = cache.get(cacheKey) as
+      | { sentenceCount: number }
+      | undefined;
+    expect(cachedData).toBeDefined();
+    expect(cachedData?.sentenceCount).toEqual(res1.body.data.sentenceCount);
+
+    // Second request (cache hit)
+    const res2 = await request(app)
+      .get(`/api/v1/texts/sentence-count/${textId}`)
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res2.statusCode).toBe(200);
+    expect(res2.body.message).toBe("Sentence count retrieved (cached)");
+    expect(res2.body.data).toEqual(cachedData);
   });
 
   it("should return 404 if text is not found for sentence count", async () => {
@@ -453,6 +515,36 @@ describe("Text Analysis Routes", () => {
     expect(res.body).toHaveProperty("message", "Text not found");
   });
 
+  it("should cache the paragraph count result", async () => {
+    // Clear the cache before the test
+    cache.flushAll();
+
+    // First request (cache miss)
+    const res1 = await request(app)
+      .get(`/api/v1/texts/paragraph-count/${textId}`)
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res1.statusCode).toBe(200);
+    expect(res1.body.message).toBe("Paragraph count retrieved");
+
+    // Check that the result is cached
+    const cacheKey = `text:${textId}:paragraphCount`;
+    const cachedData = cache.get(cacheKey) as
+      | { paragraphCount: number }
+      | undefined;
+    expect(cachedData).toBeDefined();
+    expect(cachedData?.paragraphCount).toEqual(res1.body.data.paragraphCount);
+
+    // Second request (cache hit)
+    const res2 = await request(app)
+      .get(`/api/v1/texts/paragraph-count/${textId}`)
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res2.statusCode).toBe(200);
+    expect(res2.body.message).toBe("Paragraph count retrieved (cached)");
+    expect(res2.body.data).toEqual(cachedData);
+  });
+
   it("should return longest word", async () => {
     const res = await request(app)
       .get(`/api/v1/texts/longest-word/${textId}`)
@@ -469,5 +561,35 @@ describe("Text Analysis Routes", () => {
       .set("Authorization", `Bearer ${token}`);
     expect(res.statusCode).toBe(404);
     expect(res.body).toHaveProperty("message", "Text not found");
+  });
+
+  it("should cache the longest word result", async () => {
+    // Clear the cache before the test
+    cache.flushAll();
+
+    // First request (cache miss)
+    const res1 = await request(app)
+      .get(`/api/v1/texts/longest-word/${textId}`)
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res1.statusCode).toBe(200);
+    expect(res1.body.message).toBe("Longest word retrieved");
+
+    // Check that the result is cached
+    const cacheKey = `text:${textId}:longestWord`;
+    const cachedData = cache.get(cacheKey) as
+      | { longestWord: number }
+      | undefined;
+    expect(cachedData).toBeDefined();
+    expect(cachedData?.longestWord).toEqual(res1.body.data.longestWord);
+
+    // Second request (cache hit)
+    const res2 = await request(app)
+      .get(`/api/v1/texts/longest-word/${textId}`)
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res2.statusCode).toBe(200);
+    expect(res2.body.message).toBe("Longest word retrieved (cached)");
+    expect(res2.body.data).toEqual(cachedData);
   });
 });

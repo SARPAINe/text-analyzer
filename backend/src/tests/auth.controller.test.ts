@@ -14,16 +14,16 @@ afterAll(async () => {
 describe("POST /api/v1/auth/register", () => {
   it("should register a new user successfully", async () => {
     const res = await request(app).post("/api/v1/auth/register").send({
-      email: "testuser@example.com",
+      email: "testuser2@example.com",
       password: "Test@1234",
     });
 
     expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty("message", "User registered successfully");
-    expect(res.body.data).toHaveProperty("email", "testuser@example.com");
+    expect(res.body.data).toHaveProperty("email", "testuser2@example.com");
 
     const user = await User.findOne({
-      where: { email: "testuser@example.com" },
+      where: { email: "testuser2@example.com" },
     });
     expect(user).not.toBeNull();
   });
@@ -70,6 +70,30 @@ describe("POST /api/v1/auth/login", () => {
     expect(res.statusCode).toBe(401);
     expect(res.body).toHaveProperty("message", "Invalid email or password");
   });
+
+  it("should return 400 if email or password is missing during registration", async () => {
+    // Missing password
+    const res1 = await request(app).post("/api/v1/auth/register").send({
+      email: "testuser@example.com",
+    });
+
+    expect(res1.statusCode).toBe(400);
+    expect(res1.body).toHaveProperty(
+      "message",
+      "Email and password are required"
+    );
+
+    // Missing email
+    const res2 = await request(app).post("/api/v1/auth/register").send({
+      password: "Test@1234",
+    });
+
+    expect(res2.statusCode).toBe(400);
+    expect(res2.body).toHaveProperty(
+      "message",
+      "Email and password are required"
+    );
+  });
 });
 
 describe("POST /api/v1/auth/logout", () => {
@@ -82,7 +106,6 @@ describe("POST /api/v1/auth/logout", () => {
     const res = await request(app)
       .post("/api/v1/auth/logout")
       .set("Authorization", `Bearer ${token}`);
-    console.log("🚀 ~ it ~ res:", res.body);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty("message", "Logged out successfully");

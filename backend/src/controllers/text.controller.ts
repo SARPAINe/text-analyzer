@@ -18,6 +18,7 @@ export const createText = async (
   const userId = extractUserId(req);
   const text = await textService.createText(content, userId);
 
+  cache.del("texts:all"); // Invalidate cache
   res.status(201).json(new ApiResponse("Text created successfully", text));
 };
 
@@ -71,23 +72,27 @@ export const updateText = async (
   req: Request,
   res: Response
 ): Promise<void> => {
+  const textId = Number(req.params.id);
   const { content } = req.body;
   if (!content) throw new ApiError("Content is required", 400);
 
-  const text = await textService.updateText(Number(req.params.id), content);
-  res.json(new ApiResponse("Text updated successfully", text));
+  const updatedText = await textService.updateText(textId, content);
+
+  invalidateTextCaches(textId); // Invalidate related cache
+  res.json(new ApiResponse("Text updated successfully", updatedText));
 };
 
 export const deleteText = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { id } = req.params;
+  const textId = Number(req.params.id);
 
-  const existing = await textService.getTextById(Number(id));
+  const existing = await textService.getTextById(textId);
   if (!existing) throw new ApiError("Text not found", 404);
 
-  await textService.deleteText(Number(id));
+  await textService.deleteText(textId);
+  invalidateTextCaches(textId); // Invalidate related cache
   res.json(new ApiResponse("Text deleted successfully"));
 };
 
@@ -205,4 +210,19 @@ export const getLongestWord = async (
 
   cache.set(cacheKey, data);
   res.json(new ApiResponse("Longest word retrieved", data));
+};
+
+// 🔁 Cache invalidation utility
+const invalidateTextCaches = (textId: number): void => {
+  const keys = [
+    "texts:all",
+    `text:${textId}:owner`,
+    `text:${textId}:viewer`,
+    `text:${textId}:wordCount`,
+    `text:${textId}:characterCount`,
+    `text:${textId}:sentenceCount`,
+    `text:${textId}:paragraphCount`,
+    `text:${textId}:longestWord`,
+  ];
+  keys.forEach(cache.del);
 };
