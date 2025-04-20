@@ -12,7 +12,10 @@ router.post("/logout", isAuth, authController.logout);
 // Google OAuth
 router.get(
   "/login/federated/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    session: false,
+  })
 );
 router.get(
   "/google-redirect",

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { authService } from "../services";
 import { ApiResponse } from "../utils";
+import jwt from "jsonwebtoken";
 
 export const register = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -29,9 +30,14 @@ export const logout = (_req: Request, res: Response) => {
 
 export const googleAuthRedirect = (req: any, res: Response) => {
   const user = req.user;
-  console.log("🚀 ~ user:", user);
+  const token = jwt.sign(
+    { id: user.id, email: user.email },
+    process.env.JWT_SECRET!,
+    {
+      expiresIn: "1h",
+    }
+  );
 
-  // const token = generateToken({ id: user.id, email: user.email });
   // res.redirect(`${process.env.CLIENT_URL}/?token=${token}`);
-  res.redirect("/");
+  res.redirect(`/?token=${token}`);
 };
