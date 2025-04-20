@@ -5,7 +5,7 @@ export interface Text {
   id: string;
   title: string;
   content: string;
-  userId: string;
+  creatorId: string;
   createdAt: string;
   updatedAt: string;
 }

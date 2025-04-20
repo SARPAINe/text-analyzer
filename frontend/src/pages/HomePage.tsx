@@ -4,12 +4,14 @@ import { getAllTexts, deleteText, Text } from "../services/textService";
 import TextCreateModal from "../components/TextCreateModal";
 import TextEditModal from "../components/TextEditModal";
 import TextDetailModal from "../components/TextDetailModal";
+import { useAuth } from "../contexts/AuthContext";
 
 function HomePage() {
   const [texts, setTexts] = useState<Text[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const { user } = useAuth();
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -134,6 +136,7 @@ function HomePage() {
               <div
                 className="p-5 cursor-pointer"
                 onClick={() => openDetailModal(text)}
+                style={{ height: "180px" }} // Set a fixed height
               >
                 <h3 className="text-xl font-semibold text-gray-800 mb-2 truncate">
                   {text.title}
@@ -146,30 +149,35 @@ function HomePage() {
                 </p>
               </div>
 
-              {/* <div className="flex justify-end border-t border-gray-100 px-4 py-2 bg-gray-50">
-                <div className="flex gap-1">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openEditModal(text);
-                    }}
-                    className="p-1.5 text-gray-600 hover:text-blue-600 rounded-full hover:bg-gray-100"
-                    title="Edit"
-                  >
-                    <Edit className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteText(text.id);
-                    }}
-                    className="p-1.5 text-gray-600 hover:text-red-600 rounded-full hover:bg-gray-100"
-                    title="Delete"
-                  >
-                    <Trash className="h-5 w-5" />
-                  </button>
-                </div>
-              </div> */}
+              <div
+                className="flex justify-end border-t border-gray-100 px-4 py-2 bg-gray-50"
+                style={{ height: "50px" }} // Set a fixed height
+              >
+                {text.creatorId === user?.id && (
+                  <div className="flex gap-1">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openEditModal(text);
+                      }}
+                      className="p-1.5 text-gray-600 hover:text-blue-600 rounded-full hover:bg-gray-100"
+                      title="Edit"
+                    >
+                      <Edit className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteText(text.id);
+                      }}
+                      className="p-1.5 text-gray-600 hover:text-red-600 rounded-full hover:bg-gray-100"
+                      title="Delete"
+                    >
+                      <Trash className="h-5 w-5" />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>
