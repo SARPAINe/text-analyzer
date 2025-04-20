@@ -1,2 +1,3 @@
-export { isAuth } from "./auth.middleware";
-export { errorHandler } from "./errorHandler.middleware";
+import { isAuth } from "./auth.middleware";
+import { errorHandler } from "./errorHandler.middleware";
+export { isAuth, errorHandler };

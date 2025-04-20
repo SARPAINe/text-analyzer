@@ -1,2 +1,3 @@
-export * as authService from "./auth.service";
-export * as textService from "./text.service";
+import * as authService from "./auth.service";
+import * as textService from "./text.service";
+export { authService, textService };
