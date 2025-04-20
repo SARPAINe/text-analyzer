@@ -4,6 +4,7 @@ import { json, urlencoded } from "body-parser";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import { rateLimit } from "express-rate-limit";
+import cors from "cors";
 
 import { isAuth, errorHandler } from "./middlewares";
 import { authRoutes, textRoutes } from "./routes";
@@ -20,6 +21,16 @@ defineAssociations();
  * Middleware Configuration
  * --------------------------
  */
+
+// Configure CORS to allow requests from http://localhost:5001
+app.use(
+  cors({
+    origin: "http://localhost:5001",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true, // Allow cookies to be sent with requests
+  })
+);
+
 app.use(cookieParser());
 app.use(json());
 app.use(urlencoded({ extended: true }));
