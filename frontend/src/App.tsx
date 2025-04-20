@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import Header from './components/Header';
-import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import Header from "./components/Header";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import TextAnalysisPage from "./pages/TextAnalysisPage";
 
 function App() {
   return (
@@ -14,9 +14,24 @@ function App() {
           <Header />
           <main className="flex-grow container mx-auto px-4 py-8">
             <Routes>
-              <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <HomePage />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route
+                path="/text/:id/analysis"
+                element={
+                  <ProtectedRoute>
+                    <TextAnalysisPage />
+                  </ProtectedRoute>
+                }
+              />
             </Routes>
           </main>
         </div>
@@ -32,7 +47,7 @@ interface ProtectedRouteProps {
 
 function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, loading } = useAuth();
-  
+
   // If still loading auth state, show a loading indicator
   if (loading) {
     return (
@@ -41,12 +56,12 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
       </div>
     );
   }
-  
+
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
-  
+
   return <>{children}</>;
 }
 

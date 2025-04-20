@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { X, Edit, Trash, AlertCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { X, Edit, Trash, AlertCircle, ExternalLink } from "lucide-react";
 import { Text, getTextStats, TextStats } from "../services/textService";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -21,14 +22,15 @@ function TextDetailModal({
   const [stats, setStats] = useState<TextStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         setLoading(true);
-        const stats = await getTextStats(text.id);
-        setStats(stats.report);
+        const textStats = await getTextStats(text.id);
+        setStats(textStats.report);
         setError(null);
       } catch (err: any) {
         setError(err.message || "Failed to load text statistics");
@@ -53,6 +55,13 @@ function TextDetailModal({
       minute: "2-digit",
     });
   };
+
+  const handleAnalyze = () => {
+    onClose();
+    navigate(`/text/${text.id}/analysis`);
+  };
+
+  const isOwner = user?.id === text.creatorId;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -92,7 +101,8 @@ function TextDetailModal({
                 {text.content}
               </div>
             </div>
-            {user?.id === text.creatorId && (
+
+            {isOwner ? (
               <div className="mb-6">
                 <h4 className="text-lg font-semibold mb-3">Text Statistics</h4>
 
@@ -141,8 +151,19 @@ function TextDetailModal({
                   </div>
                 )}
               </div>
+            ) : (
+              <div className="mb-6">
+                <button
+                  onClick={handleAnalyze}
+                  className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Analysis
+                </button>
+              </div>
             )}
-            {user?.id === text.creatorId && (
+
+            {isOwner && (
               <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
                 <button
                   onClick={onDelete}

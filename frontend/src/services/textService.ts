@@ -88,6 +88,78 @@ export const deleteText = async (id: string): Promise<void> => {
   }
 };
 
+// Get word count
+export const getWordCount = async (id: string): Promise<number> => {
+  try {
+    const response = await apiClient.get(`/api/v1/texts/word-count/${id}`);
+    return response.data.data.wordCount;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(
+        error.response.data.message || "Failed to fetch word count"
+      );
+    }
+    throw new Error("Network error when fetching word count");
+  }
+};
+
+// Get character count
+export const getCharacterCount = async (id: string): Promise<number> => {
+  try {
+    const response = await apiClient.get(`/api/v1/texts/character-count/${id}`);
+    return response.data.data.characterCount;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(
+        error.response.data.message || "Failed to fetch character count"
+      );
+    }
+    throw new Error("Network error when fetching character count");
+  }
+};
+// Get sentence count
+export const getSentenceCount = async (id: string): Promise<number> => {
+  try {
+    const response = await apiClient.get(`/api/v1/texts/sentence-count/${id}`);
+    return response.data.data.sentenceCount;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(
+        error.response.data.message || "Failed to fetch sentence count"
+      );
+    }
+    throw new Error("Network error when fetching sentence count");
+  }
+};
+// Get paragraph count
+export const getParagraphCount = async (id: string): Promise<number> => {
+  try {
+    const response = await apiClient.get(`/api/v1/texts/paragraph-count/${id}`);
+    return response.data.data.paragraphCount;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(
+        error.response.data.message || "Failed to fetch paragraph count"
+      );
+    }
+    throw new Error("Network error when fetching paragraph count");
+  }
+};
+// Get longest word
+export const getLongestWord = async (id: string): Promise<string> => {
+  try {
+    const response = await apiClient.get(`/api/v1/texts/longest-word/${id}`);
+    return response.data.data.longestWord;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(
+        error.response.data.message || "Failed to fetch longest word"
+      );
+    }
+    throw new Error("Network error when fetching longest word");
+  }
+};
+
 // Get text statistics
 export const getTextStats = async (id: string): Promise<any> => {
   try {
