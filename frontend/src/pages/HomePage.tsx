@@ -136,17 +136,17 @@ function HomePage() {
                 onClick={() => openDetailModal(text)}
               >
                 <h3 className="text-xl font-semibold text-gray-800 mb-2 truncate">
-                  {text.content}
+                  {text.title}
                 </h3>
-                {/* <p className="text-gray-600 mb-4 line-clamp-3">
+                <p className="text-gray-600 mb-4 line-clamp-3">
                   {text.content}
-                </p> */}
+                </p>
                 <p className="text-sm text-gray-500">
                   {formatDate(text.createdAt)}
                 </p>
               </div>
 
-              <div className="flex justify-end border-t border-gray-100 px-4 py-2 bg-gray-50">
+              {/* <div className="flex justify-end border-t border-gray-100 px-4 py-2 bg-gray-50">
                 <div className="flex gap-1">
                   <button
                     onClick={(e) => {
@@ -169,7 +169,7 @@ function HomePage() {
                     <Trash className="h-5 w-5" />
                   </button>
                 </div>
-              </div>
+              </div> */}
             </div>
           ))}
         </div>

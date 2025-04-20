@@ -4,6 +4,7 @@ import User from "./user.model";
 
 interface TextAttributes {
   id?: number;
+  title: string;
   content: string;
   creatorId: number; // Foreign key to User
   createdAt?: Date;
@@ -12,6 +13,7 @@ interface TextAttributes {
 
 class Text extends Model<TextAttributes> {
   public id!: number;
+  public title!: string;
   public content!: string;
   public creatorId!: number; // Foreign key to User
   public createdAt!: Date;
@@ -24,6 +26,10 @@ Text.init(
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
+    },
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     content: {
       type: DataTypes.TEXT,

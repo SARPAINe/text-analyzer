@@ -12,11 +12,11 @@ export const createText = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { content } = req.body;
+  const { content, title } = req.body;
   if (!content) throw new ApiError("Content is required", 400);
 
   const userId = extractUserId(req);
-  const text = await textService.createText(content, userId);
+  const text = await textService.createText(title, content, userId);
 
   cache.del("texts:all"); // Invalidate cache
   res.status(201).json(new ApiResponse("Text created successfully", text));
@@ -73,10 +73,15 @@ export const updateText = async (
   res: Response
 ): Promise<void> => {
   const textId = Number(req.params.id);
-  const { content } = req.body;
+  const { content, title } = req.body;
   if (!content) throw new ApiError("Content is required", 400);
 
-  const updatedText = await textService.updateText(textId, content);
+  const updatedText = await textService.updateText(
+    textId,
+    title,
+    content,
+    extractUserId(req)
+  );
 
   invalidateTextCaches(textId); // Invalidate related cache
   res.json(new ApiResponse("Text updated successfully", updatedText));
@@ -91,7 +96,7 @@ export const deleteText = async (
   const existing = await textService.getTextById(textId);
   if (!existing) throw new ApiError("Text not found", 404);
 
-  await textService.deleteText(textId);
+  await textService.deleteText(textId, extractUserId(req));
   invalidateTextCaches(textId); // Invalidate related cache
   res.json(new ApiResponse("Text deleted successfully"));
 };

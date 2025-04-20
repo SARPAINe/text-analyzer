@@ -67,7 +67,7 @@ function TextDetailModal({
           <div className="px-6 pt-5 pb-6 bg-white">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold leading-6 text-gray-900">
-                {text.content}
+                {text.title}
               </h3>
               <button
                 onClick={onClose}
@@ -84,6 +84,12 @@ function TextDetailModal({
               <p className="text-sm text-gray-500">
                 Last updated: {formatDate(text.updatedAt)}
               </p>
+            </div>
+
+            <div className="mb-6">
+              <div className="border border-gray-200 rounded-md p-4 bg-gray-50 mb-6 whitespace-pre-wrap">
+                {text.content}
+              </div>
             </div>
 
             <div className="mb-6">

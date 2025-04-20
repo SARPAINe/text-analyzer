@@ -3,6 +3,7 @@ import { apiClient } from "./apiClient";
 
 export interface Text {
   id: string;
+  title: string;
   content: string;
   userId: string;
   createdAt: string;
