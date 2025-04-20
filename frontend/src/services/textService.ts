@@ -89,38 +89,49 @@ export const deleteText = async (id: string): Promise<void> => {
 };
 
 // Get text statistics
-export const getTextStats = async (id: string): Promise<TextStats> => {
+export const getTextStats = async (id: string): Promise<any> => {
   try {
-    const wordCountPromise = apiClient.get(`/api/v1/texts/word-count/${id}`);
-    const charCountPromise = apiClient.get(
-      `/api/v1/texts/character-count/${id}`
-    );
-    const sentenceCountPromise = apiClient.get(
-      `/api/v1/texts/sentence-count/${id}`
-    );
-    const paragraphCountPromise = apiClient.get(
-      `/api/v1/texts/paragraph-count/${id}`
-    );
-    const longestWordPromise = apiClient.get(
-      `/api/v1/texts/longest-word/${id}`
-    );
+    const stats = await apiClient.get(`/api/v1/texts/${id}`);
+    // const statsPromise = apiClient.get(`/api/v1/texts/${id}`);
+    // const wordCountPromise = apiClient.get(`/api/v1/texts/word-count/${id}`);
+    // const charCountPromise = apiClient.get(
+    //   `/api/v1/texts/character-count/${id}`
+    // );
+    // const sentenceCountPromise = apiClient.get(
+    //   `/api/v1/texts/sentence-count/${id}`
+    // );
+    // const paragraphCountPromise = apiClient.get(
+    //   `/api/v1/texts/paragraph-count/${id}`
+    // );
+    // const longestWordPromise = apiClient.get(
+    //   `/api/v1/texts/longest-word/${id}`
+    // );
 
-    const [wordCount, charCount, sentenceCount, paragraphCount, longestWord] =
-      await Promise.all([
-        wordCountPromise,
-        charCountPromise,
-        sentenceCountPromise,
-        paragraphCountPromise,
-        longestWordPromise,
-      ]);
+    // const [
+    //   stats,
+    //   wordCount,
+    //   charCount,
+    //   sentenceCount,
+    //   paragraphCount,
+    //   longestWord,
+    // ] = await Promise.all([
+    //   statsPromise,
+    //   wordCountPromise,
+    //   charCountPromise,
+    //   sentenceCountPromise,
+    //   paragraphCountPromise,
+    //   longestWordPromise,
+    // ]);
 
-    return {
-      wordCount: wordCount.data.data.wordCount,
-      characterCount: charCount.data.data.characterCount,
-      sentenceCount: sentenceCount.data.data.sentenceCount,
-      paragraphCount: paragraphCount.data.data.paragraphCount,
-      longestWord: longestWord.data.data.longestWord,
-    };
+    // return {
+    //   stats: stats.data.data,
+    //   wordCount: wordCount.data.data.wordCount,
+    //   characterCount: charCount.data.data.characterCount,
+    //   sentenceCount: sentenceCount.data.data.sentenceCount,
+    //   paragraphCount: paragraphCount.data.data.paragraphCount,
+    //   longestWord: longestWord.data.data.longestWord,
+    // };
+    return stats.data.data as TextStats;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(

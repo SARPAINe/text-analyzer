@@ -58,8 +58,23 @@ export const getTextById = async (
   }
 
   if (isOwner) {
-    const result = textService.analyzeText(text.content);
-    const responseData = { report: result, text };
+    const {
+      getCharacterCount,
+      getLongestWord,
+      getParagraphCount,
+      getSentenceCount,
+      getWordCount,
+    } = textService.analyzeText(text.content);
+    const responseData = {
+      report: {
+        wordCount: getWordCount(),
+        characterCount: getCharacterCount(),
+        sentenceCount: getSentenceCount(),
+        paragraphCount: getParagraphCount(),
+        longestWord: getLongestWord(),
+      },
+      text,
+    };
     cache.set(cacheKey, responseData);
     res.json(new ApiResponse("Text retrieved successfully", responseData));
   } else {

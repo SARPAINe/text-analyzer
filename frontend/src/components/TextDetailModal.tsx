@@ -27,9 +27,8 @@ function TextDetailModal({
     const fetchStats = async () => {
       try {
         setLoading(true);
-        const textStats = await getTextStats(text.id);
-        console.log("🚀 ~ fetchStats ~ textStats:", textStats);
-        setStats(textStats);
+        const stats = await getTextStats(text.id);
+        setStats(stats.report);
         setError(null);
       } catch (err: any) {
         setError(err.message || "Failed to load text statistics");
@@ -93,55 +92,56 @@ function TextDetailModal({
                 {text.content}
               </div>
             </div>
+            {user?.id === text.creatorId && (
+              <div className="mb-6">
+                <h4 className="text-lg font-semibold mb-3">Text Statistics</h4>
 
-            <div className="mb-6">
-              <h4 className="text-lg font-semibold mb-3">Text Statistics</h4>
+                {loading ? (
+                  <div className="flex justify-center items-center py-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                  </div>
+                ) : error ? (
+                  <div className="bg-red-50 border border-red-200 rounded-md p-4 flex items-start">
+                    <AlertCircle className="text-red-500 h-5 w-5 mr-2 mt-0.5" />
+                    <p className="text-sm text-red-800">{error}</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="bg-blue-50 p-4 rounded-md text-center">
+                      <p className="text-sm text-blue-700 mb-1">Words</p>
+                      <p className="text-2xl font-bold text-blue-900">
+                        {stats?.wordCount || 0}
+                      </p>
+                    </div>
+                    <div className="bg-green-50 p-4 rounded-md text-center">
+                      <p className="text-sm text-green-700 mb-1">Characters</p>
+                      <p className="text-2xl font-bold text-green-900">
+                        {stats?.characterCount || 0}
+                      </p>
+                    </div>
+                    <div className="bg-purple-50 p-4 rounded-md text-center">
+                      <p className="text-sm text-purple-700 mb-1">Sentences</p>
+                      <p className="text-2xl font-bold text-purple-900">
+                        {stats?.sentenceCount || 0}
+                      </p>
+                    </div>
+                    <div className="bg-amber-50 p-4 rounded-md text-center">
+                      <p className="text-sm text-amber-700 mb-1">Paragraphs</p>
+                      <p className="text-2xl font-bold text-amber-900">
+                        {stats?.paragraphCount || 0}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
-              {loading ? (
-                <div className="flex justify-center items-center py-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-                </div>
-              ) : error ? (
-                <div className="bg-red-50 border border-red-200 rounded-md p-4 flex items-start">
-                  <AlertCircle className="text-red-500 h-5 w-5 mr-2 mt-0.5" />
-                  <p className="text-sm text-red-800">{error}</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-blue-50 p-4 rounded-md text-center">
-                    <p className="text-sm text-blue-700 mb-1">Words</p>
-                    <p className="text-2xl font-bold text-blue-900">
-                      {stats?.wordCount || 0}
-                    </p>
+                {stats?.longestWord && (
+                  <div className="mt-4 bg-gray-50 p-4 rounded-md">
+                    <p className="text-sm text-gray-600 mb-1">Longest word</p>
+                    <p className="font-medium">{stats.longestWord}</p>
                   </div>
-                  <div className="bg-green-50 p-4 rounded-md text-center">
-                    <p className="text-sm text-green-700 mb-1">Characters</p>
-                    <p className="text-2xl font-bold text-green-900">
-                      {stats?.characterCount || 0}
-                    </p>
-                  </div>
-                  <div className="bg-purple-50 p-4 rounded-md text-center">
-                    <p className="text-sm text-purple-700 mb-1">Sentences</p>
-                    <p className="text-2xl font-bold text-purple-900">
-                      {stats?.sentenceCount || 0}
-                    </p>
-                  </div>
-                  <div className="bg-amber-50 p-4 rounded-md text-center">
-                    <p className="text-sm text-amber-700 mb-1">Paragraphs</p>
-                    <p className="text-2xl font-bold text-amber-900">
-                      {stats?.paragraphCount || 0}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {stats?.longestWord && (
-                <div className="mt-4 bg-gray-50 p-4 rounded-md">
-                  <p className="text-sm text-gray-600 mb-1">Longest word</p>
-                  <p className="font-medium">{stats.longestWord}</p>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
             {user?.id === text.creatorId && (
               <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
                 <button
