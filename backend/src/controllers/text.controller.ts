@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ApiError, ApiResponse } from "../utils";
 import { textService } from "../services";
+import cache from "../utils/cache";
 
 const extractUserId = (req: Request): number => {
   if (!req.user) throw new ApiError("User not authenticated", 401);
@@ -23,32 +24,45 @@ export const createText = async (
 export const getAllTexts = async (
   _req: Request,
   res: Response
-): Promise<void> => {
+): Promise<any> => {
+  const cacheKey = "texts:all";
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    return res.json(new ApiResponse("All texts retrieved (cached)", cached));
+  }
+
   const texts = await textService.getAllTexts();
+  cache.set(cacheKey, texts, 60);
   res.json(new ApiResponse("All texts retrieved", texts));
 };
 
 export const getTextById = async (
   req: Request,
   res: Response
-): Promise<void> => {
-  const text = await textService.getTextById(Number(req.params.id));
+): Promise<any> => {
+  const textId = Number(req.params.id);
+  const userId = extractUserId(req);
+  const text = await textService.getTextById(textId);
+
   if (!text) throw new ApiError("Text not found", 404);
 
-  const userId = extractUserId(req);
-  const id = Number(req.params.id);
-  //check if the creator is same
-  if (text.creatorId === userId) {
-    const content = text.content;
-    // Perform analysis
-    const result = textService.analyzeText(content);
-    res.json(
-      new ApiResponse("Text retrieved successfully", {
-        report: result,
-        text: text,
-      })
+  const isOwner = text.creatorId === userId;
+  const cacheKey = isOwner ? `text:${textId}:owner` : `text:${textId}:viewer`;
+
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    return res.json(
+      new ApiResponse("Text retrieved successfully (cached)", cached)
     );
+  }
+
+  if (isOwner) {
+    const result = textService.analyzeText(text.content);
+    const responseData = { report: result, text };
+    cache.set(cacheKey, responseData);
+    res.json(new ApiResponse("Text retrieved successfully", responseData));
   } else {
+    cache.set(cacheKey, text);
     res.json(new ApiResponse("Text retrieved successfully", text));
   }
 };
@@ -80,53 +94,115 @@ export const deleteText = async (
 export const getWordCount = async (
   req: Request,
   res: Response
-): Promise<void> => {
-  const text = await textService.getTextById(Number(req.params.id));
+): Promise<any> => {
+  const textId = Number(req.params.id);
+  const cacheKey = `text:${textId}:wordCount`;
+  const cached = cache.get(cacheKey);
+
+  if (cached) {
+    return res.json(new ApiResponse("Word count retrieved (cached)", cached));
+  }
+
+  const text = await textService.getTextById(textId);
   if (!text) throw new ApiError("Text not found", 404);
-  const { wordCount } = textService.analyzeText(text?.content);
-  res.json(new ApiResponse("Word count retrieved", { wordCount }));
+
+  const { wordCount } = textService.analyzeText(text.content);
+  const data = { wordCount };
+
+  cache.set(cacheKey, data);
+  res.json(new ApiResponse("Word count retrieved", data));
 };
 
 export const getCharacterCount = async (
   req: Request,
   res: Response
-): Promise<void> => {
-  const text = await textService.getTextById(Number(req.params.id));
+): Promise<any> => {
+  const textId = Number(req.params.id);
+  const cacheKey = `text:${textId}:characterCount`;
+  const cached = cache.get(cacheKey);
+
+  if (cached) {
+    return res.json(
+      new ApiResponse("Character count retrieved (cached)", cached)
+    );
+  }
+
+  const text = await textService.getTextById(textId);
   if (!text) throw new ApiError("Text not found", 404);
 
-  const { characterCount } = textService.analyzeText(text?.content);
-  res.json(new ApiResponse("Character count retrieved", { characterCount }));
+  const { characterCount } = textService.analyzeText(text.content);
+  const data = { characterCount };
+
+  cache.set(cacheKey, data);
+  res.json(new ApiResponse("Character count retrieved", data));
 };
 
 export const getSentenceCount = async (
   req: Request,
   res: Response
-): Promise<void> => {
-  const text = await textService.getTextById(Number(req.params.id));
+): Promise<any> => {
+  const textId = Number(req.params.id);
+  const cacheKey = `text:${textId}:sentenceCount`;
+  const cached = cache.get(cacheKey);
+
+  if (cached) {
+    return res.json(
+      new ApiResponse("Sentence count retrieved (cached)", cached)
+    );
+  }
+
+  const text = await textService.getTextById(textId);
   if (!text) throw new ApiError("Text not found", 404);
 
-  const { sentenceCount } = textService.analyzeText(text?.content);
-  res.json(new ApiResponse("Sentence count retrieved", { sentenceCount }));
+  const { sentenceCount } = textService.analyzeText(text.content);
+  const data = { sentenceCount };
+
+  cache.set(cacheKey, data);
+  res.json(new ApiResponse("Sentence count retrieved", data));
 };
 
 export const getParagraphCount = async (
   req: Request,
   res: Response
-): Promise<void> => {
-  const text = await textService.getTextById(Number(req.params.id));
+): Promise<any> => {
+  const textId = Number(req.params.id);
+  const cacheKey = `text:${textId}:paragraphCount`;
+  const cached = cache.get(cacheKey);
+
+  if (cached) {
+    return res.json(
+      new ApiResponse("Paragraph count retrieved (cached)", cached)
+    );
+  }
+
+  const text = await textService.getTextById(textId);
   if (!text) throw new ApiError("Text not found", 404);
 
-  const { paragraphCount } = textService.analyzeText(text?.content);
-  res.json(new ApiResponse("Paragraph count retrieved", { paragraphCount }));
+  const { paragraphCount } = textService.analyzeText(text.content);
+  const data = { paragraphCount };
+
+  cache.set(cacheKey, data);
+  res.json(new ApiResponse("Paragraph count retrieved", data));
 };
 
 export const getLongestWord = async (
   req: Request,
   res: Response
-): Promise<void> => {
-  const text = await textService.getTextById(Number(req.params.id));
+): Promise<any> => {
+  const textId = Number(req.params.id);
+  const cacheKey = `text:${textId}:longestWord`;
+  const cached = cache.get(cacheKey);
+
+  if (cached) {
+    return res.json(new ApiResponse("Longest word retrieved (cached)", cached));
+  }
+
+  const text = await textService.getTextById(textId);
   if (!text) throw new ApiError("Text not found", 404);
 
-  const { longestWord } = textService.analyzeText(text?.content);
-  res.json(new ApiResponse("Longest word retrieved", { longestWord }));
+  const { longestWord } = textService.analyzeText(text.content);
+  const data = { longestWord };
+
+  cache.set(cacheKey, data);
+  res.json(new ApiResponse("Longest word retrieved", data));
 };
