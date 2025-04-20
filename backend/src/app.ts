@@ -1,29 +1,46 @@
-// src/app.ts
-import "express-async-errors";
+import "express-async-errors"; // Import this first to handle async errors globally
 import express from "express";
 import { json, urlencoded } from "body-parser";
 import cookieParser from "cookie-parser";
 import passport from "passport";
+import { rateLimit } from "express-rate-limit";
 
 import { isAuth, errorHandler } from "./middlewares";
 import { authRoutes, textRoutes } from "./routes";
 import { defineAssociations } from "./models";
 
+// Initialize Express app
 const app = express();
 
-// Define associations
+// Define model associations
 defineAssociations();
 
 /**
  * --------------------------
- * Middleware
+ * Middleware Configuration
  * --------------------------
  */
 app.use(cookieParser());
 app.use(json());
 app.use(urlencoded({ extended: true }));
 
-// Initialize Passport.js
+// Rate Limiting Configuration
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 100,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  handler: (req, res) => {
+    res
+      .status(429)
+      .json({ message: "Too many requests, please try again later." });
+  },
+});
+
+// Apply the rate limiting middleware globally
+app.use(limiter);
+
+// Initialize Passport.js for authentication
 app.use(passport.initialize());
 
 /**
@@ -31,11 +48,16 @@ app.use(passport.initialize());
  * Routes
  * --------------------------
  */
+
+// Basic route for root path
 app.get("/", (_req, res) => {
   res.send("Welcome to the Text Analysis API!");
 });
 
+// Authentication routes
 app.use("/api/v1/auth", authRoutes);
+
+// Text-related routes with authentication middleware
 app.use("/api/v1/texts", isAuth, textRoutes);
 
 /**
