@@ -30,7 +30,10 @@ export const updateText = async (
     throw new ApiError("You are not authorized to update this text", 403);
   }
 
-  text.set({ title: newTitle, content: newContent });
+  // Use the old title if newTitle is null
+  const updatedTitle = newTitle ?? text.title;
+
+  text.set({ title: updatedTitle, content: newContent });
   return await text.save();
 };
 

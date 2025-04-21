@@ -1,6 +1,5 @@
 import axios from "axios";
 import { apiClient } from "./apiClient";
-import { CloudCog } from "lucide-react";
 
 // Register new user
 export const register = async (email: string, password: string) => {
