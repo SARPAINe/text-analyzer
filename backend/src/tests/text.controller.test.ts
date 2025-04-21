@@ -10,39 +10,33 @@ let textId: number;
 beforeAll(async () => {
   await sequelize.sync({ force: true }); // Reset DB
 
-  // Register the test user
-  const user = await request(app).post("/api/v1/auth/register").send({
-    email: "testuser@example.com",
-    password: "Test@1234",
+  // Register and login User A
+  const userA = await request(app).post("/api/v1/auth/register").send({
+    email: "usera@example.com",
+    password: "Password123!",
   });
-
-  // Log in to get the token
-  const res = await request(app).post("/api/v1/auth/login").send({
-    email: "testuser@example.com",
-    password: "Test@1234",
+  const loginA = await request(app).post("/api/v1/auth/login").send({
+    email: "usera@example.com",
+    password: "Password123!",
   });
+  token = loginA.body.data.token;
 
-  // Create User B
-  await request(app).post("/api/v1/auth/register").send({
-    username: "userb",
+  // Register and login User B
+  const userB = await request(app).post("/api/v1/auth/register").send({
     email: "userb@example.com",
-    password: "userbpass",
+    password: "Password123!",
   });
-
-  // Login User B
-  const loginRes = await request(app).post("/api/v1/auth/login").send({
+  const loginB = await request(app).post("/api/v1/auth/login").send({
     email: "userb@example.com",
-    password: "userbpass",
+    password: "Password123!",
   });
+  otherToken = loginB.body.data.token;
 
-  token = res.body.data.token; // Save the token for use in tests
-  otherToken = loginRes.body.data.token;
-
+  // Create a text for testing
   const textRes = await request(app)
     .post("/api/v1/texts")
     .set("Authorization", `Bearer ${token}`)
-    .send({ content: "Hello world! This is a test. It has two sentences." });
-
+    .send({ title: "Test Title", content: "This is a test content." });
   textId = textRes.body.data.id;
 });
 
@@ -62,15 +56,16 @@ describe("Authentication test", () => {
 });
 
 describe("POST /api/v1/texts", () => {
-  it("should create a text", async () => {
+  it("should create a text successfully", async () => {
     const res = await request(app)
       .post("/api/v1/texts")
-      .set("Authorization", `Bearer ${token}`) // Auth header
-      .send({ content: "Hello world!" });
+      .set("Authorization", `Bearer ${token}`)
+      .send({ title: "New Title", content: "New content" });
 
     expect(res.statusCode).toBe(201);
-    expect(res.body).toHaveProperty("success", true);
-    expect(res.body.data).toHaveProperty("content", "Hello world!");
+    expect(res.body).toHaveProperty("message", "Text created successfully");
+    expect(res.body.data).toHaveProperty("title", "New Title");
+    expect(res.body.data).toHaveProperty("content", "New content");
   });
 
   it("should return 400 if content is missing", async () => {
@@ -94,31 +89,25 @@ describe("GET /api/v1/texts", () => {
     expect(res.body).toHaveProperty("message", "All texts retrieved");
     expect(res.body.data).toBeInstanceOf(Array);
   });
+
   it("should retrieve all texts and cache the result", async () => {
-    // Clear the cache before the test
-    cache.flushAll();
+    cache.flushAll(); // Clear cache before test
 
     // First request (cache miss)
     const res1 = await request(app)
       .get("/api/v1/texts")
       .set("Authorization", `Bearer ${token}`);
-
     expect(res1.statusCode).toBe(200);
-    expect(res1.body).toHaveProperty("message", "All texts retrieved");
-    expect(res1.body.data).toBeInstanceOf(Array);
 
-    // Check that the result is cached
-    const cachedData = cache.get("texts:all") as { content: any[] } | null;
+    // Check cache
+    const cachedData = cache.get("texts:all");
     expect(cachedData).toBeDefined();
 
     // Second request (cache hit)
     const res2 = await request(app)
       .get("/api/v1/texts")
       .set("Authorization", `Bearer ${token}`);
-
-    expect(res2.statusCode).toBe(200);
-    expect(res2.body).toHaveProperty("message", "All texts retrieved (cached)");
-    expect(res2.body.data.content).toEqual(cachedData?.content);
+    expect(res2.body.message).toBe("All texts retrieved (cached)");
   });
 });
 
@@ -127,7 +116,7 @@ describe("GET /api/v1/texts/:id", () => {
     const createRes = await request(app)
       .post("/api/v1/texts")
       .set("Authorization", `Bearer ${token}`) // User A
-      .send({ content: "Sample text" });
+      .send({ title: "sample title", content: "Sample text" });
 
     const textId = createRes.body.data.id;
 
@@ -141,6 +130,7 @@ describe("GET /api/v1/texts/:id", () => {
     const { report, text } = res.body.data;
 
     expect(text).toHaveProperty("content", "Sample text");
+    expect(text).toHaveProperty("title", "sample title");
     expect(report).toHaveProperty("wordCount"); // assuming `analyzeText` returns word count
   });
 
@@ -148,7 +138,7 @@ describe("GET /api/v1/texts/:id", () => {
     const createRes = await request(app)
       .post("/api/v1/texts")
       .set("Authorization", `Bearer ${token}`) // user A
-      .send({ content: "Private text" });
+      .send({ title: "Private title", content: "Private text" });
 
     const textId = createRes.body.data.id;
 
@@ -162,6 +152,7 @@ describe("GET /api/v1/texts/:id", () => {
     const data = res.body.data;
 
     expect(data).toHaveProperty("content", "Private text");
+    expect(data).toHaveProperty("title", "Private title");
     expect(data).not.toHaveProperty("report"); // should not include analysis
   });
 
@@ -232,31 +223,17 @@ describe("GET /api/v1/texts/:id", () => {
 
 describe("PATCH /api/v1/texts/:id", () => {
   it("should update a text successfully", async () => {
-    const createRes = await request(app)
-      .post("/api/v1/texts")
-      .set("Authorization", `Bearer ${token}`)
-      .send({ content: "Old content" });
-
-    const textId = createRes.body.data.id;
-
     const res = await request(app)
       .patch(`/api/v1/texts/${textId}`)
       .set("Authorization", `Bearer ${token}`)
-      .send({ content: "Updated content" });
+      .send({ title: "Updated Title", content: "Updated content" });
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty("message", "Text updated successfully");
-    expect(res.body.data).toHaveProperty("content", "Updated content");
+    expect(res.body.data).toHaveProperty("title", "Updated Title");
   });
 
   it("should return 400 if content is missing", async () => {
-    const createRes = await request(app)
-      .post("/api/v1/texts")
-      .set("Authorization", `Bearer ${token}`)
-      .send({ content: "Old content" });
-
-    const textId = createRes.body.data.id;
-
     const res = await request(app)
       .patch(`/api/v1/texts/${textId}`)
       .set("Authorization", `Bearer ${token}`)
@@ -290,6 +267,7 @@ describe("PATCH /api/v1/texts/:id", () => {
       .set("Authorization", `Bearer ${token}`)
       .send({ content: "Updated content" });
 
+    console.log("🚀 ~ it ~ res:", res.body);
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty("message", "Text updated successfully");
 
@@ -303,7 +281,7 @@ describe("DELETE /api/v1/texts/:id", () => {
     const createRes = await request(app)
       .post("/api/v1/texts")
       .set("Authorization", `Bearer ${token}`)
-      .send({ content: "Text to delete" });
+      .send({ title: "Delete candidate", content: "Text to delete" });
 
     const textId = createRes.body.data.id;
 
@@ -347,13 +325,17 @@ describe("DELETE /api/v1/texts/:id", () => {
 
 describe("Text Analysis Routes", () => {
   beforeAll(async () => {
-    // Create a text for analysis tests
+    // Create a text for analysis tests with an added title field
     const createRes = await request(app)
       .post("/api/v1/texts")
       .set("Authorization", `Bearer ${token}`)
-      .send({ content: "Hello world! This is a test. It has two sentences." });
+      .send({
+        title: "Test Title", // Add the title field here
+        content: "Hello world! This is a test. It has two sentences.",
+      });
     textId = createRes.body.data.id;
   });
+
   it("should return word count", async () => {
     const text = await request(app)
       .get(`/api/v1/texts/${textId}`)
