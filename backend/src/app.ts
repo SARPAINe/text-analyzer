@@ -1,3 +1,4 @@
+// Third-party module imports
 import "express-async-errors"; // Import this first to handle async errors globally
 import express from "express";
 import { json, urlencoded } from "body-parser";
@@ -5,7 +6,9 @@ import cookieParser from "cookie-parser";
 import passport from "passport";
 import { rateLimit } from "express-rate-limit";
 import cors from "cors";
+import helmet from "helmet";
 
+// Local module imports
 import { isAuth, errorHandler } from "./middlewares";
 import { authRoutes, textRoutes } from "./routes";
 import { defineAssociations } from "./models";
@@ -22,7 +25,10 @@ defineAssociations();
  * --------------------------
  */
 
-// Configure CORS to allow requests from http://localhost:5001
+// Security Middlewares
+app.use(helmet());
+
+// CORS Configuration
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
@@ -31,17 +37,18 @@ app.use(
   })
 );
 
+// Parsing Middlewares
 app.use(cookieParser());
 app.use(json());
 app.use(urlencoded({ extended: true }));
 
 // Rate Limiting Configuration
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 100,
-  standardHeaders: "draft-8",
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  standardHeaders: "draft-8", // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false,
-  handler: (req, res) => {
+  handler: (_req, res) => {
     res
       .status(429)
       .json({ message: "Too many requests, please try again later." });

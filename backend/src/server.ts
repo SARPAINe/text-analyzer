@@ -1,6 +1,6 @@
 // src/server.ts
-import dotenv from "dotenv";
-dotenv.config({ path: `.env.${process.env.NODE_ENV || "development"}` });
+import { config } from "dotenv-safe";
+config({ path: `.env.${process.env.NODE_ENV || "development"}` });
 
 import app from "./app";
 import { connectToDatabase } from "./database";

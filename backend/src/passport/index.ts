@@ -1,9 +1,8 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy, Profile } from "passport-google-oauth20";
 
-import dotenv from "dotenv";
+import dotenv from "dotenv-safe";
 import { User } from "../models";
-import { where } from "sequelize";
 dotenv.config({ path: ".env" });
 const env = process.env.NODE_ENV;
 if (env !== "production") {

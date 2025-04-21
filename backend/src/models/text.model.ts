@@ -1,5 +1,5 @@
 import sequelize from "../database";
-import { Model, DataTypes, ForeignKey } from "sequelize";
+import { Model, DataTypes } from "sequelize";
 import User from "./user.model";
 
 interface TextAttributes {
