@@ -2,6 +2,8 @@
 
 This project is a full-stack application built with **React**, **Tailwind CSS**, **Node.js**, **Express**, and **TypeScript**. It consists of a client-side frontend and a server-side backend, both containerized using Docker. The application is designed to perform text analysis, manage authentication, and maintain logs in a clean and scalable architecture.
 
+---
+
 ## Project Structure
 
 ```
@@ -59,6 +61,8 @@ text-analyzer
 └── README.md                         # Project documentation
 ```
 
+---
+
 ## Getting Started
 
 ### Prerequisites
@@ -67,7 +71,9 @@ text-analyzer
 - **MongoDB**
 - **Docker** and **Docker Compose**
 
-### Running with Docker
+---
+
+## Running with Docker
 
 1. Stop and remove any existing containers:
 
@@ -85,6 +91,21 @@ text-analyzer
    - Frontend: [http://localhost:5000](http://localhost:5000)
    - Backend: [http://localhost:3000](http://localhost:3000)
 
+---
+
+## Environment Variables
+
+To run the project successfully using Docker, you must include the following environment variables in your `docker-compose.yml` file:
+
+```env
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+```
+
+Make sure these are defined under the appropriate service in your `docker-compose.yml` before building and running the containers.
+
+---
+
 ## Features
 
 - 🧠 Text Analysis & Results
@@ -92,6 +113,8 @@ text-analyzer
 - 🧪 Unit & Integration Testing via Jest
 - 🧾 Logging (error + combined logs)
 - 🎨 Modern UI with Tailwind + Vite
+
+---
 
 ## Scripts
 
@@ -103,8 +126,6 @@ npm run dev        # Start development server
 npm run build      # Build production bundle
 npm test           # Run tests with Jest
 ```
-
-Sure! Here's the updated version with your instructions included, using proper markup:
 
 ---
 
@@ -119,12 +140,7 @@ npm test           # Run tests with Jest
 > 💡 **Note:**  
 > To run tests and generate a coverage report, ensure a **test database** is running with the following environment variables set (typically in a `.env.test` or test-specific `.env` file):
 
-```
-DB_NAME=text_analyzer_test
-DB_USER=postgres
-DB_PASSWORD=postgres
-DB_HOST=localhost
-DB_PORT=5432
+```env
 DB_NAME=text_analyzer_test
 DB_USER=postgres
 DB_PASSWORD=postgres
@@ -150,5 +166,3 @@ open coverage/lcov-report/index.html   # macOS
 xdg-open coverage/lcov-report/index.html   # Linux
 start coverage/lcov-report/index.html   # Windows
 ```
-
-This will show a detailed test coverage summary with file-by-file breakdowns.

@@ -3,8 +3,21 @@ import app from "../app";
 import { sequelize } from "../database";
 import { User } from "../models";
 
+let token: string;
+
 beforeAll(async () => {
   await sequelize.sync({ force: true }); // Reset the database
+
+  // Register and login User A
+  const userA = await request(app).post("/api/v1/auth/register").send({
+    email: "testuser@example.com",
+    password: "Test@1234",
+  });
+  const loginA = await request(app).post("/api/v1/auth/login").send({
+    email: "testuser@example.com",
+    password: "Test@1234",
+  });
+  token = loginA.body.data.token;
 });
 
 afterAll(async () => {
@@ -39,13 +52,6 @@ describe("POST /api/v1/auth/register", () => {
 });
 
 describe("POST /api/v1/auth/login", () => {
-  beforeAll(async () => {
-    await request(app).post("/api/v1/auth/register").send({
-      email: "testuser@example.com",
-      password: "Test@1234",
-    });
-  });
-
   it("should log in a user successfully and return a token", async () => {
     const res = await request(app).post("/api/v1/auth/login").send({
       email: "testuser@example.com",
@@ -69,7 +75,6 @@ describe("POST /api/v1/auth/login", () => {
   });
 
   it("should return 400 if password is missing during registration", async () => {
-    // Missing password
     const res1 = await request(app).post("/api/v1/auth/register").send({
       email: "testuser@example.com",
     });
@@ -79,7 +84,6 @@ describe("POST /api/v1/auth/login", () => {
   });
 
   it("should return 400 if email is missing during registration", async () => {
-    // Missing password
     const res1 = await request(app).post("/api/v1/auth/register").send({
       password: "testuser@example.com",
     });
