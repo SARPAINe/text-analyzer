@@ -16,8 +16,6 @@ class Text extends Model<TextAttributes> {
   public title!: string;
   public content!: string;
   public creatorId!: number; // Foreign key to User
-  public createdAt!: Date;
-  public updatedAt!: Date;
 }
 
 Text.init(

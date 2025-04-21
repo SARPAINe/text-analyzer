@@ -5,7 +5,7 @@ export const errorHandler = (
   err: any,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   logError(`Error: ${err.message} - ${req.method} ${req.url} - ${req.ip}`);
 
