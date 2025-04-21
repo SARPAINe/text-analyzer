@@ -25,7 +25,7 @@ defineAssociations();
 // Configure CORS to allow requests from http://localhost:5001
 app.use(
   cors({
-    origin: "http://localhost:5001",
+    origin: process.env.CLIENT_URL,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true, // Allow cookies to be sent with requests
   })

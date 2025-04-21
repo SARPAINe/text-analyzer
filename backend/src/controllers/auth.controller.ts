@@ -38,5 +38,5 @@ export const googleAuthRedirect = (req: any, res: Response) => {
     }
   );
 
-  res.redirect(`${process.env.CLIENT_URL}/?token=${token}`);
+  res.redirect(`${process.env.CLIENT_URL}?token=${token}`);
 };
