@@ -1,3 +1,4 @@
 import { isAuth } from "./auth.middleware";
 import { errorHandler } from "./errorHandler.middleware";
-export { isAuth, errorHandler };
+import { validate } from "./validation.middleware";
+export { isAuth, errorHandler, validate };

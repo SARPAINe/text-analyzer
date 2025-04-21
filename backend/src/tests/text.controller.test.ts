@@ -2,6 +2,7 @@ import request from "supertest";
 import app from "../app";
 import { sequelize } from "../database";
 import { cache } from "../utils";
+import { title } from "process";
 
 let token: string;
 let otherToken: string; // Token for another user
@@ -68,14 +69,24 @@ describe("POST /api/v1/texts", () => {
     expect(res.body.data).toHaveProperty("content", "New content");
   });
 
-  it("should return 400 if content is missing", async () => {
+  it("should return 400 if title is missing", async () => {
     const res = await request(app)
       .post("/api/v1/texts")
       .set("Authorization", `Bearer ${token}`)
       .send({});
 
     expect(res.statusCode).toBe(400);
-    expect(res.body).toHaveProperty("message", "Content is required");
+    expect(res.body).toHaveProperty("message", '"Title" is required');
+  });
+
+  it("should return 400 if content is missing", async () => {
+    const res = await request(app)
+      .post("/api/v1/texts")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ title: "Sample Title" });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toHaveProperty("message", '"Content" is required');
   });
 });
 
@@ -240,7 +251,7 @@ describe("PATCH /api/v1/texts/:id", () => {
       .send({});
 
     expect(res.statusCode).toBe(400);
-    expect(res.body).toHaveProperty("message", "Content is required");
+    expect(res.body).toHaveProperty("message", '"Content" is required');
   });
 
   it("should return 404 if text is not found", async () => {

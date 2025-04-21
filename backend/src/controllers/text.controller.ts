@@ -13,7 +13,6 @@ export const createText = async (
   res: Response
 ): Promise<void> => {
   const { content, title } = req.body;
-  if (!content) throw new ApiError("Content is required", 400);
 
   const userId = extractUserId(req);
   const text = await textService.createText(title, content, userId);
@@ -89,7 +88,6 @@ export const updateText = async (
 ): Promise<void> => {
   const textId = Number(req.params.id);
   const { content, title } = req.body;
-  if (!content) throw new ApiError("Content is required", 400);
 
   const updatedText = await textService.updateText(
     textId,
@@ -107,9 +105,6 @@ export const deleteText = async (
   res: Response
 ): Promise<void> => {
   const textId = Number(req.params.id);
-
-  const existing = await textService.getTextById(textId);
-  if (!existing) throw new ApiError("Text not found", 404);
 
   await textService.deleteText(textId, extractUserId(req));
   invalidateTextCaches(textId); // Invalidate related cache
@@ -238,7 +233,7 @@ export const getLongestWord = async (
   res.json(new ApiResponse("Longest word retrieved", data));
 };
 
-// 🔁 Cache invalidation utility
+// Cache invalidation utility
 const invalidateTextCaches = (textId: number): void => {
   const keys = [
     "texts:all",

@@ -28,16 +28,13 @@ describe("POST /api/v1/auth/register", () => {
     expect(user).not.toBeNull();
   });
 
-  it("should return 400 if email or password is missing", async () => {
+  it("should return 400 if password is missing", async () => {
     const res = await request(app).post("/api/v1/auth/register").send({
       email: "testuser@example.com",
     });
 
     expect(res.statusCode).toBe(400);
-    expect(res.body).toHaveProperty(
-      "message",
-      "Email and password are required"
-    );
+    expect(res.body).toHaveProperty("message", '"Password" is required');
   });
 });
 
@@ -71,28 +68,24 @@ describe("POST /api/v1/auth/login", () => {
     expect(res.body).toHaveProperty("message", "Invalid email or password");
   });
 
-  it("should return 400 if email or password is missing during registration", async () => {
+  it("should return 400 if password is missing during registration", async () => {
     // Missing password
     const res1 = await request(app).post("/api/v1/auth/register").send({
       email: "testuser@example.com",
     });
 
     expect(res1.statusCode).toBe(400);
-    expect(res1.body).toHaveProperty(
-      "message",
-      "Email and password are required"
-    );
+    expect(res1.body).toHaveProperty("message", '"Password" is required');
+  });
 
-    // Missing email
-    const res2 = await request(app).post("/api/v1/auth/register").send({
-      password: "Test@1234",
+  it("should return 400 if email is missing during registration", async () => {
+    // Missing password
+    const res1 = await request(app).post("/api/v1/auth/register").send({
+      password: "testuser@example.com",
     });
 
-    expect(res2.statusCode).toBe(400);
-    expect(res2.body).toHaveProperty(
-      "message",
-      "Email and password are required"
-    );
+    expect(res1.statusCode).toBe(400);
+    expect(res1.body).toHaveProperty("message", '"Email" is required');
   });
 });
 
