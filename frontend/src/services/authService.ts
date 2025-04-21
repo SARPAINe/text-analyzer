@@ -66,5 +66,6 @@ export const getProfile = async () => {
 
 // Initiate Google OAuth login
 export const initiateGoogleLogin = () => {
-  window.location.href = "/api/v1/auth/login/federated/google";
+  window.location.href =
+    "http://localhost:3000/api/v1/auth/login/federated/google";
 };
