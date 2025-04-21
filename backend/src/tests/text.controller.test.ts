@@ -2,7 +2,6 @@ import request from "supertest";
 import app from "../app";
 import { sequelize } from "../database";
 import { cache } from "../utils";
-import { title } from "process";
 
 let token: string;
 let otherToken: string; // Token for another user
